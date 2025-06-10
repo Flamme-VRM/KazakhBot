@@ -4,10 +4,13 @@ import os
 from aiogram import Bot, Dispatcher
 from aiogram.types import Message
 from dotenv import load_dotenv
+import google.generativeai as genai
 
 load_dotenv(".env")
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
+
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
