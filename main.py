@@ -35,10 +35,12 @@ async def start_command(message: Message):
 🎯 Жалпы көмек
 
 Хабарлама жіберіп, бастайық! 💫"""
-
+    await message.answer(greeting)
+    
+    
 @dp.message()
 async def echo(message: Message):
-    aai_response = await get_ai_response(message.from_user.id, message.text)
+    ai_response = await get_ai_response(message.from_user.id, message.text)
     await message.answer(ai_response)
 
 
@@ -47,4 +49,3 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-
