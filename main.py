@@ -15,7 +15,9 @@ LLM_API_KEY = os.getenv("LLM_API_KEY")
 
 genai.configure(api_key=LLM_API_KEY)
 model = genai.GenerativeModel(os.getenv("MODEL"))
-
+SYSTEM_PROMPT = """You are AlatauLLM, a Kazakh language AI assistant.
+  IMPORTANT: Always respond ONLY in Kazakh language.
+  Help users with their questions while maintaining Kazakh cultural context."""
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
 
@@ -28,7 +30,7 @@ async def get_ai_response(user_id: int, text: str) -> str:
 
         user_history[user_id].append(f'User: {text}')
         recent_history = user_history[user_id][-10:]
-        full_prompt = "\n\nConversation History: \n" + "\n".join(recent_history)
+        full_prompt = SYSTEM_PROMPT + "\n\nConversation History: \n" + "\n".join(recent_history)
 
         response = model.generate_content(full_prompt)
         user_history[user_id].append(f"AlatauLLM: {response.text}")
