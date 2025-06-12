@@ -13,7 +13,7 @@ BOT_TOKEN = os.getenv("BOT_TOKEN")
 LLM_API_KEY = os.getenv("GEMINI_API_KEY")
 
 genai.configure(api_key=LLM_API_KEY)
-model = genai.GenerativeModel(os.getenv("MODEL")
+model = genai.GenerativeModel(os.getenv("MODEL"))
 
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
