@@ -38,7 +38,8 @@ async def start_command(message: Message):
 
 @dp.message()
 async def echo(message: Message):
-    await message.answer(message.text)
+    aai_response = await get_ai_response(message.from_user.id, message.text)
+    await message.answer(ai_response)
 
 
 async def main():
