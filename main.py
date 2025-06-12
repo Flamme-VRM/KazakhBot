@@ -19,6 +19,10 @@ model = genai.GenerativeModel(os.getenv("MODEL"))
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
 
+async def get_ai_response(user_id, text):
+    response = model.generate_content(text)
+    return response.text
+
 @dp.message(Command("start"))
 async def st(message: Message):
     ai_response = await get_ai_response(message.from_user.id, message.text)
