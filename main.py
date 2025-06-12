@@ -37,11 +37,6 @@ async def get_ai_response(user_id: int, text: str) -> str:
     except Exception as e:
         return "Кешіріңіз, қазір жауап бере алмаймын"
 
-
-async def get_ai_response(user_id, text):
-    response = model.generate_content(text)
-    return response.text
-
 @dp.message(Command("start"))
 async def start_command(message: Message):
     greeting = """🇰🇿 Сәлеметсіз бе! AlatauLLM'ға қош келдіңіз!
