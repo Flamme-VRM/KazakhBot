@@ -18,9 +18,15 @@ model = genai.GenerativeModel('gemini-2.5-flash-preview-05-20')
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
 
+@dp.message(Command("start"))
+async def st(message: Message):
+    ai_response = await get_ai_response(message.from_user.id, message.text)
+    await message.answer(ai_response)
+
 @dp.message()
 async def echo(message: Message):
     await message.answer(message.text)
+
 
 async def main():
     await dp.start_polling(bot)
