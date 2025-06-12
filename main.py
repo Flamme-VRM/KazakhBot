@@ -19,6 +19,25 @@ model = genai.GenerativeModel(os.getenv("MODEL"))
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
 
+user_history = {}
+
+async def get_ai_response(user_id: int, text: str) -> str:
+    try:
+        if user_id not in user_history:
+            user_history[user_id] = []
+
+        user_history[user_id].append(f'User: {text}')
+        recent_history = user_history[user_id][-10:]
+        text = "\n\nConversation History: \n" + "\n".join(recent_history)
+
+        response = model.generate_content(text)
+        user_history[user_id].append(f"AlatauLLM: {response.text}")
+
+        return response.text
+    except Exception as e:
+        return "Кешіріңіз, қазір жауап бере алмаймын"
+
+
 async def get_ai_response(user_id, text):
     response = model.generate_content(text)
     return response.text
