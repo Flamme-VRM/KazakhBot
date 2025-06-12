@@ -35,13 +35,13 @@ async def start_command(message: Message):
 🎯 Жалпы көмек
 
 Хабарлама жіберіп, бастайық! 💫"""
-    await message.answer(greeting)
+    await message.answer(greeting, parse_mode='Markdown')
     
     
 @dp.message()
 async def echo(message: Message):
     ai_response = await get_ai_response(message.from_user.id, message.text)
-    await message.answer(ai_response)
+    await message.answer(ai_response, parse_mode='Markdown')
 
 
 async def main():
