@@ -1,2 +1,2 @@
 # KazakhBot
-I'm about to build a Kazakh chat bot based on LLM. But it answers in multilang mode for now, I'll fix it very soon
+It's a AlatauLLM and that's an AI chat-bot which responds in Kazakh language only!
