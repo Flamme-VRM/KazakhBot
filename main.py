@@ -24,9 +24,17 @@ async def get_ai_response(user_id, text):
     return response.text
 
 @dp.message(Command("start"))
-async def st(message: Message):
-    ai_response = await get_ai_response(message.from_user.id, message.text)
-    await message.answer(ai_response)
+async def start_command(message: Message):
+    greeting = """🇰🇿 Сәлеметсіз бе! AlatauLLM'ға қош келдіңіз!
+
+Мен сізбен қазақ тілінде сөйлесе алатын ИИ боспанымын. Маған кез келген сұрақ қоя аласыз:
+
+📝 Мәтін жазу және аудару
+💬 Қазақ тілінде сұхбат
+📚 Білім беру сұрақтары  
+🎯 Жалпы көмек
+
+Хабарлама жіберіп, бастайық! 💫"""
 
 @dp.message()
 async def echo(message: Message):
