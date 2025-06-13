@@ -89,11 +89,16 @@ async def start_command(message: Message):
 @dp.message()
 async def echo(message: Message):
     ai_response = await get_ai_response(message.from_user.id, message.text)
-    await message.answer(ai_response, parse_mode='Markdown')
+    try:
+        await message.answer(ai_response, parse_mode='Markdown')
+    except Exception:
+        logger.error("Error sending markdown response")
+        await message.answer(ai_response)
 
 
 async def main():
     show_bunner()
+    logger.info("Bot is ready and polling for messages...")
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
