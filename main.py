@@ -100,7 +100,7 @@ async def echo(message: Message):
 
 
 async def main():
-    show_bunner()
+    show_banner()
     logger.info("Bot is ready and polling for messages...")
     await dp.start_polling(bot)
 
