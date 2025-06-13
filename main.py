@@ -7,12 +7,19 @@ Description: AI assistant bot for Kazakh students with IELTS/SAT/TOEFL preparati
 
 import asyncio
 import os
+import logging
 
 from aiogram import Bot, Dispatcher
 from aiogram.filters import Command
 from aiogram.types import Message
 from dotenv import load_dotenv
 import google.generativeai as genai
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
 
 load_dotenv(".env")
 
