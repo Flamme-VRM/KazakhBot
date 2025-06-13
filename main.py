@@ -1,3 +1,10 @@
+"""
+AlatauLLM - Kazakh AI Assistant Telegram Bot
+Author: Shyngisbek Asylkhan
+GitHub: https://github.com/Flamme-VRM
+Description: AI assistant bot for Kazakh students with IELTS/SAT/TOEFL preparation support
+"""
+
 import asyncio
 import os
 
