@@ -60,14 +60,17 @@ async def get_ai_response(user_id: int, text: str) -> str:
             user_history[user_id] = []
 
         user_history[user_id].append(f'User: {text}')
+        
         recent_history = user_history[user_id][-10:]
         full_prompt = SYSTEM_PROMPT + "\n\nConversation History: \n" + "\n".join(recent_history)
 
         response = model.generate_content(full_prompt)
         user_history[user_id].append(f"AlatauLLM: {response.text}")
 
+        
         return response.text
-    except Exception as e:
+    except Exception:
+        logger.error("Error generating AI response")
         return "Кешіріңіз, қазір жауап бере алмаймын"
 
 @dp.message(Command("start"))
