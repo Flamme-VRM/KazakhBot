@@ -22,6 +22,17 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+def show_banner():
+    banner = r"""
+ _____ _                                   __     ______  __  __ 
+|  ___| | __ _ _ __ ___  _ __ ___   ___    \ \   / /  _ \|  \/  |
+| |_  | |/ _` | '_ ` _ \| '_ ` _ \ / _ \____\ \ / /| |_) | |\/| |
+|  _| | | (_| | | | | | | | | | | |  __/_____\ V / |  _ <| |  | |
+|_|   |_|\__,_|_| |_| |_|_| |_| |_|\___|      \_/  |_| \_\_|  |_|
+    """
+    print(banner)
+    logger.info("AlatauLLM bot starting up...")
+
 load_dotenv(".env")
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
@@ -43,17 +54,6 @@ dp = Dispatcher()
 
 user_history = {}
 
-def show_banner():
-    banner = r"""
- _____ _                                   __     ______  __  __ 
-|  ___| | __ _ _ __ ___  _ __ ___   ___    \ \   / /  _ \|  \/  |
-| |_  | |/ _` | '_ ` _ \| '_ ` _ \ / _ \____\ \ / /| |_) | |\/| |
-|  _| | | (_| | | | | | | | | | | |  __/_____\ V / |  _ <| |  | |
-|_|   |_|\__,_|_| |_| |_|_| |_| |_|\___|      \_/  |_| \_\_|  |_|
-    """
-    print(banner)
-    logger.info("AlatauLLM bot starting up...")
-  
 async def get_ai_response(user_id: int, text: str) -> str:
     try:
         if user_id not in user_history:
