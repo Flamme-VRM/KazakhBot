@@ -53,6 +53,10 @@ redis_client = None
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
 
+REDIS_DAYS_COUNTER = 86400 * 7 
+REDIS_SESSION_TTL_SECONDS = 3600 * 24 
+REDIS_CACHE_COUNTER = 3600
+
 def get_user_history_key(user_id: int) -> str:
     return f"user_history:{user_id}"
 
@@ -77,7 +81,7 @@ def save_user_history(user_id: int, history: list):
             return
         redis_client.setex(
             get_user_history_key(user_id),
-            86400 * 7,
+            REDIS_DAYS_COUNTER,
             json.dumps(history[-50:])
         )
     except Exception as e:
@@ -99,7 +103,7 @@ def cache_response(prompt: str, response: str):
             return
         redis_client.setex(
             get_cache_key(prompt),
-            3600,
+            REDIS_CACHE_COUNTER,
             response
         )
     except Exception as e:
@@ -122,7 +126,7 @@ def set_user_session(user_id: int, session_data: dict):
             return
         redis_client.setex(
             f"user_session:{user_id}",
-            3600 * 24,
+            REDIS_SESSION_TTL_SECONDS,
             json.dumps(session_data)
         )
     except Exception as e:
