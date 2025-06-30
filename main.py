@@ -1,21 +1,32 @@
 """
+
 AsylBILIM - Refactored Architecture
 
 """
 
 import asyncio
+import tempfile
+import re
+
+import aiofiles
 import os
 import logging
 import json
 import hashlib
+import speech_recognition as sr
+from datetime import datetime, timedelta
+
+from markdown_it.common.html_re import processing
+from pydub import AudioSegment
 from typing import Optional, Dict, List
 
-from aiogram import Bot, Dispatcher
+from aiogram import Bot, Dispatcher, F
 from aiogram.filters import Command
-from aiogram.types import Message
+from aiogram.types import Message, Voice
 from dotenv import load_dotenv
 import google.generativeai as genai
 import redis
+
 
 logging.basicConfig(
     level=logging.INFO,
@@ -86,6 +97,83 @@ class CacheService:
             logger.debug(f"Error getting user session: {e}")
             return {}
 
+class SpeechToTextService:
+
+    def __init__(self):
+        self.recognizer = sr.Recognizer()
+
+        self.recognizer.energy_threshold = 300
+        self.recognizer.dynamic_energy_threshold = True
+        self.recognizer.pause_threshold = 0.8
+
+    async def convert_voice_to_text(self, voice_file_path: str, language: str = "kk-KZ") -> str:
+        try:
+            wav_path = await self._convert_to_wav(voice_file_path)
+
+            with sr.AudioFile(wav_path) as source:
+                self.recognizer.adjust_for_ambient_noise(source, duration=0.5)
+                audio = self.recognizer.record(source)
+
+            try:
+                text = await asyncio.to_thread(
+                    self.recognizer.recognize_google,
+                    audio,
+                    language=language
+                )
+                logger.info(f"Speech recognition sucessful with Google API")
+                return text
+
+            except sr.UnknownValueError:
+                return await self._fallback_recognition(audio, language)
+        except Exception as e:
+            logger.error(f"Speech recognition failed: {e}")
+
+            return ""
+        finally:
+            try:
+                if 'wav_path' in locals():
+                    os.unlink(wav_path)
+                os.unlink(voice_file_path)
+            except:
+                pass
+
+    async def _convert_to_wav(self, ogg_path: str) -> str:
+        wav_path = ogg_path.replace('.ogg', '.wav')
+
+        def convert():
+            audio = AudioSegment.from_ogg(ogg_path)
+
+            audio = audio.set_frame_rate(16000).set_channels(1)
+            audio.export(wav_path, format = "wav")
+
+        await asyncio.to_thread(convert)
+        return wav_path
+
+    async def _fallback_recognition(self, audio, language: str) -> str:
+        try:
+            if language == "kk-KZ":
+                text = await asyncio.to_thread(
+                    self.recognizer.recognize_google,
+                    audio,
+                    language="ru-RU"
+                )
+                return f"[RU] {text}"
+        except:
+            pass
+
+        try:
+            text = await asyncio.to_thread(
+                self.recognizer.recognize_google,
+                audio,
+                language="en-US"
+            )
+            return f"[ENG] {text}"
+
+        except:
+            pass
+
+        return ""
+
 
 class AIService:
     
@@ -99,13 +187,14 @@ class AIService:
 
         if not self.system_prompt:
             logger.warning("SYSTEM_PROMPT is missing")
-    
+
     async def generate_response(self, user_id: int, text: str) -> str:
         try:
             history = self.cache.get_user_history(user_id)
             history.append(f'User: {text}')
 
             recent_history = history[-10:]
+
             full_prompt = f"{self.system_prompt}\n\nConversation History:\n" + "\n".join(recent_history)
 
             cached_response = self.cache.get_cached_response(full_prompt)
@@ -116,6 +205,7 @@ class AIService:
                 return cached_response
 
             response = await asyncio.to_thread(self.model.generate_content, full_prompt)
+
             
             if not response or not response.text:
                 logger.error(f"Empty response from AI model for user {user_id}")
@@ -144,6 +234,17 @@ class MessageHandler:
     def __init__(self, ai_service: AIService, cache_service: CacheService):
         self.ai_service = ai_service
         self.cache = cache_service
+        self.speech_service = SpeechToTextService()
+
+    def convert_markdown_to_html(self, text: str) -> str:
+
+        text = re.sub(r'\*\*(.*?)\*\*', r'<b>\1</b>', text)
+
+        text = re.sub(r'\*(.*?)\*', r'<i>\1</i>', text)
+
+        text = re.sub(r'`(.*?)`', r'<code>\1</code>', text)
+
+        return text
     
     async def handle_start(self, message: Message):
         user_id = message.from_user.id
@@ -166,7 +267,7 @@ class MessageHandler:
 
 Сұрағыңызды жазыңыз - барлық жауаптар қазақ тілінде! 💫"""
 
-        await message.answer(greeting, parse_mode='Markdown')
+        await message.answer(greeting, parse_mode='HTML')
 
 
     async def handle_clear(self, message: Message):
@@ -179,7 +280,7 @@ class MessageHandler:
             await message.answer(
                 "Мәтін сәтті тазартылды!\n"
                  "Енді біз жаңа әңгімені таза парақтан бастай аламыз.",
-                 parse_mode ="Markdown"
+                 parse_mode ="HTML"
             )
 
 
@@ -189,14 +290,77 @@ class MessageHandler:
             logger.error(f"Error with clearing data for {user_id}: {e} ")
             await message.answer("Мәтінді қазір тазалау мүмкін емес, сәл кейінірек көріңізді өтінеміз")
 
+    async def handle_voice(self, message: Message):
+        try:
+            voice: Voice = message.voice
+
+            if voice.file_size > 10 * 1024 * 1024:
+                await message.answer(
+                    "🚫 Аудио файл тым үлкен (10МБ-тан асып кетті)."
+                    "Қысқарақ аудио жіберіңіз."
+                )
+                return
+
+
+            processing_msg = await message.answer("🎵 Аудионы өңдеп жатырмын...")
+
+            file_info = await message.bot.get_file(voice.file_id)
+
+            with tempfile.NamedTemporaryFile(suffix= '.ogg', delete=False) as temp_file:
+                temp_path = temp_file.name
+
+            await message.bot.download_file(file_info.file_path, temp_path)
+
+            user_session = self.cache.get_user_session(message.from_user.id)
+            language = user_session.get('language', 'kk-KZ')
+
+            recognized_text = await self.speech_service.convert_voice_to_text(
+                temp_path,
+                language
+            )
+
+            if not recognized_text:
+                await processing_msg.edit_text(
+                    "😕 Аудионы танымады. Анығырақ сөйлеп, үндірек жіберіңіз."
+                )
+                return
+
+            await processing_msg.delete()
+
+            await message.answer(
+                f"🎤 Танылған мәтін:\n{recognized_text}\n\n"
+                f"➡️ Жауап дайындап жатырмын...",
+                parse_mode='HTML'
+            )
+
+            ai_response = await self.ai_service.generate_response(
+                message.from_user.id,
+                recognized_text
+            )
+
+            try:
+                await message.answer(ai_response, parse_mode='HTML')
+            except Exception:
+                await message.answer(ai_response)
+
+        except Exception as e:
+            logger.error(f"Voice processing error for user {message.from_user.id}: {e}")
+            await message.answer(
+                "Кешіріңіз, аудионы өңдеуде қате орын алды. "
+                "Қайталап көріңіз немесе мәтін түрінде жазыңыз."
+            )
+
+
+
     async def handle_message(self, message: Message):
         if message.text.startswith("/"): return
         ai_response = await self.ai_service.generate_response(message.from_user.id, message.text)
         
         try:
-            await message.answer(ai_response, parse_mode='Markdown')
+            html_response = self.convert_markdown_to_html(ai_response)
+            await message.answer(html_response, parse_mode="HTML")
         except Exception as e:
-            logger.error(f"Error sending markdown response to user {message.from_user.id}: {e}")
+            logger.error(f"Error sending HTML response to user {message.from_user.id}: {e}")
             try:
                 await message.answer(ai_response)
             except Exception as e2:
@@ -229,6 +393,7 @@ class AsylBilim:
 
         self.dp.message(Command("start"))(self.message_handler.handle_start)
         self.dp.message(Command("clear"))(self.message_handler.handle_clear)
+        self.dp.message(F.voice)(self.message_handler.handle_voice)
 
         self.dp.message()(self.message_handler.handle_message)
 
