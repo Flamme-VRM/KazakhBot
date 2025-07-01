@@ -93,7 +93,11 @@ If you have any questions, issues, or suggestions, please feel free to:
     * **Running Redis (if not already running):** Instructions for running Redis locally or via Docker.
 * **Demo / Screenshots:**
     * "See AsylBILIM in action!"
-    *  ![изображение](https://github.com/user-attachments/assets/316add7b-4352-4b44-bf71-bd786d72938b, ![изображение](https://github.com/user-attachments/assets/dc650f41-927c-423f-961c-0d1f811d65f6, It can completely understand the context of conversation ![изображение](https://github.com/user-attachments/assets/6555d968-606a-43d1-bd8b-be900844cc48
+    *  (![изображение](https://github.com/user-attachments/assets/316add7b-4352-4b44-bf71-bd786d72938b)
+    *  
+    *  (![изображение](https://github.com/user-attachments/assets/dc650f41-927c-423f-961c-0d1f811d65f6)
+    *  It can completely understand the context of conversation:
+    *   (![изображение](https://github.com/user-attachments/assets/6555d968-606a-43d1-bd8b-be900844cc48)
 
 * **Roadmap:**
 * 
