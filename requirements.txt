@@ -1,4 +1,7 @@
-aiogram
-python-dotenv
-google-generativeai
-redis
+aiogram>=3.0
+python-dotenv>=1.0
+google-generativeai>=0.3
+redis>=5.0
+SpeechRecognition>=3.10
+pydub>=0.25
+aiofiles>=23.0
