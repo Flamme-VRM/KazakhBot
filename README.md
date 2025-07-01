@@ -19,7 +19,7 @@ Navigating academic challenges can be tough. AsylBILIM streamlines your study pr
 
 ## 🚀 Key Features
 
-* **Intelligent Q&A (LLM-Powered):** Ask any academic question and receive accurate, contextually relevant answers based on the advanced AlatauLLM.
+* **Intelligent Q&A (LLM-Powered):** Ask any academic question and receive accurate, contextually relevant answers based on the advanced Gemini 2.5.
 * **Voice Input Support:** Seamlessly interact with the bot using voice messages. Our Speech-to-Text service accurately transcribes your Kazakh speech into text for AI processing.
 * **Conversation History Management:** The bot remembers your past interactions, providing a more coherent and personalized conversation flow (history is stored for 7 days).
 * **Efficient Caching System:** Frequently asked questions and their responses are cached for faster retrieval and reduced API costs.
@@ -109,12 +109,12 @@ If you have any questions, issues, or suggestions, please feel free to:
 
 
 * **Roadmap:**
-* 
 We have exciting plans for the future of AsylBILIM, constantly striving to enhance its intelligence and utility for Kazakh students. Here are some key features and improvements we're actively working on or planning:
 
 * **Implementing a RAG (Retrieval Augmented Generation) System:** Our top priority is to integrate a robust RAG system. This will enable AsylBILIM to retrieve information from a curated knowledge base (e.g., educational materials, textbooks, exam guidelines specific to Kazakhstan) before generating responses. This ensures that the bot provides the most **relevant, accurate, and concise** answers, significantly reducing hallucinations and improving the factual correctness of information, especially for academic queries.
+* **Enhancing Core Architecture & Scalability:** We are committed to continuously refining the bot's internal architecture to ensure greater efficiency, robustness, and scalability. This includes optimizing data flow, improving resource management, and laying the groundwork for handling a growing user base and more complex academic queries without performance degradation.
 
-* **Acknowledgements:**
-    * This bot can make mistakes, please double-check responses. 
+# 🙏 Disclaimer
 
+* Please note that while AsylBILIM strives for accuracy, it is an AI model and may occasionally produce incorrect or incomplete information. Always double-check critical responses, especially for academic purposes.
 ---
